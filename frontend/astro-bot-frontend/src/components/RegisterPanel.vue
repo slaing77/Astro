@@ -8,6 +8,7 @@
         <v-text-field v-model="username" label="Username" required />
         <v-file-input v-model="profilePicture" label="Profile Picture" accept="image/*" prepend-icon="mdi-camera" />
         <v-btn type="submit" color="primary" block>Register</v-btn>
+        
       </v-form>
     </v-card-text>
   </v-card>
@@ -15,13 +16,17 @@
 
 <script setup>
 import { ref } from 'vue'
+import api from '@/services/api'  // ✅ centralized Axios client with VITE_API_URL
+
+console.log('VITE_API_URL:', import.meta.env.VITE_API_URL)
+// ✅ use centralized Axios client for API requests
 
 const email = ref('')
 const password = ref('')
 const username = ref('')
 const profilePicture = ref(null)
 
-const register = () => {
+const register = async () => {
   const formData = new FormData()
   formData.append('email', email.value)
   formData.append('password', password.value)
@@ -30,18 +35,14 @@ const register = () => {
     formData.append('profile_picture', profilePicture.value)
   }
 
-  fetch('http://localhost:8000/register', {
-    method: 'POST',
-    body: formData,
-  })
-    .then(async (res) => {
-      const data = await res.json()
-      if (res.ok) {
-        alert('Registration successful!')
-      } else {
-        alert('Registration failed: ' + data.detail)
-      }
-    })
-    .catch((err) => console.error('Registration error', err))
+  try {
+    const response = await api.post('/register', formData)  // ✅ USE api, not fetch
+    alert('Registration successful!')
+    console.log('Registered user:', response.data)
+  } catch (error) {
+    console.error('Registration failed:', error.response?.data || error.message)
+    alert('Registration failed: ' + (error.response?.data.detail || error.message))
+  }
 }
+
 </script>
