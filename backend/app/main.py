@@ -1,4 +1,17 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Body
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()  # ✅ create app FIRST!
+
+# ✅ then add CORS middleware AFTER app exists:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or restrict to your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+from fastapi import Depends
 from app import models, database
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
@@ -18,7 +31,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-app = FastAPI()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
